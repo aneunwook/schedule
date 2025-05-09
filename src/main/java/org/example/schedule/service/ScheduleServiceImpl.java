@@ -1,0 +1,63 @@
+package org.example.schedule.service;
+
+import org.example.schedule.dto.ScheduleRequestDto;
+import org.example.schedule.dto.ScheduleResponseDto;
+import org.example.schedule.entity.Schedule;
+import org.example.schedule.repository.ScheduleRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class ScheduleServiceImpl implements ScheduleService{
+
+    private final ScheduleRepository scheduleRepository;
+
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository) {
+        this.scheduleRepository = scheduleRepository;
+    }
+
+    @Override
+    public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
+        Schedule schedule = new Schedule(scheduleRequestDto.getName(), scheduleRequestDto.getPassword(), scheduleRequestDto.getContents());
+
+        if (scheduleRequestDto.getName() == null || scheduleRequestDto.getContents() == null || scheduleRequestDto.getPassword() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The name and contents and password are required values.");
+        }
+
+        Schedule save = scheduleRepository.save(schedule);
+
+        return new ScheduleResponseDto(save.getId(), save.getName(), save.getContents(), save.getPassword(), save.getCreatedAt(), save.getUpdatedAt());
+    }
+
+    @Override
+    public List<ScheduleResponseDto> findAllSchedules() {
+        return scheduleRepository.findAllSchedules();
+    }
+
+    @Override
+    public ScheduleResponseDto findScheduleById(Long id) {
+        return scheduleRepository.findScheduleById(id);
+    }
+
+    @Override
+    public List<ScheduleResponseDto> searchSchedules(String name, LocalDate updatedAt) {
+        return scheduleRepository.findSchedulesByParams(name, updatedAt);
+    }
+
+    @Transactional
+    @Override
+    public ScheduleResponseDto updateScheduleById(Long id, ScheduleRequestDto scheduleRequestDto) {
+        int updated = scheduleRepository.updateSchedule(id, scheduleRequestDto);
+
+        if (updated == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+        }
+
+        return scheduleRepository.findScheduleById(id);
+    }
+}
