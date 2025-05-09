@@ -63,12 +63,17 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
     @Override
     public List<ScheduleResponseDto> findSchedulesByParams(String name, LocalDate updatedAt) {
 
-        return jdbcTemplate.query("select * from schedule where (? is null or name = ?) and (? is null or date(updated_at) = ?)", scheduleRowMapper(), name, name, updatedAt, updatedAt);
+        return jdbcTemplate.query("select * from schedule where (? is null or name = ?) and (? is null or date(updated_at) = ?) order by updated_at desc", scheduleRowMapper(), name, name, updatedAt, updatedAt);
     }
 
     @Override
     public int updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto) {
-        return jdbcTemplate.update("update schedule set contents = ?, name = ?, updated_at = ? where id = ?", scheduleRequestDto.getContents(), scheduleRequestDto.getName(), LocalDateTime.now(), id);
+        return jdbcTemplate.update("update schedule set contents = ?, name = ?, updated_at = ? where id = ? ", scheduleRequestDto.getContents(), scheduleRequestDto.getName(), LocalDateTime.now(), id);
+    }
+
+    @Override
+    public int deleteSchedule(Long id, String password) {
+        return jdbcTemplate.update("delete from schedule where id = ? and password = ?", id, password);
     }
 
     private RowMapper<ScheduleResponseDto> scheduleRowMapper(){

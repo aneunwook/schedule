@@ -17,4 +17,6 @@ public interface ScheduleRepository {
     List<ScheduleResponseDto> findSchedulesByParams (String name, LocalDate updatedAt);
 
     int updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto);
+
+    int deleteSchedule(Long id, String password);
 }

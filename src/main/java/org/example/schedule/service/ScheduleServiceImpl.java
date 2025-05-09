@@ -52,6 +52,16 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Transactional
     @Override
     public ScheduleResponseDto updateScheduleById(Long id, ScheduleRequestDto scheduleRequestDto) {
+        ScheduleResponseDto scheduleById = scheduleRepository.findScheduleById(id);
+
+        if(scheduleById == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+        }
+
+        if(!scheduleById.getPassword().equals(scheduleRequestDto.getPassword())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 다릅니다");
+        }
+
         int updated = scheduleRepository.updateSchedule(id, scheduleRequestDto);
 
         if (updated == 0) {
@@ -59,5 +69,24 @@ public class ScheduleServiceImpl implements ScheduleService{
         }
 
         return scheduleRepository.findScheduleById(id);
+    }
+
+    @Override
+    public void deleteSchedule(Long id, String password) {
+        ScheduleResponseDto scheduleById = scheduleRepository.findScheduleById(id);
+
+        if(scheduleById == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+        }
+
+        if(!password.equals(scheduleById.getPassword())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 다릅니다");
+        }
+
+        int deleted = scheduleRepository.deleteSchedule(id, password);
+
+        if (deleted == 0){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+        }
     }
 }
