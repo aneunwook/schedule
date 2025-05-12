@@ -37,6 +37,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
         Map<String, Object> parameters = new HashMap<>();
 
         parameters.put("name", schedule.getName());
+        parameters.put("author_id", schedule.getAuthorId());
         parameters.put("password", schedule.getPassword());
         parameters.put("contents", schedule.getContents());
         parameters.put("created_at", schedule.getCreatedAt());
@@ -50,20 +51,47 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
 
     @Override
     public List<ScheduleResponseDto> findAllSchedules() {
-        return jdbcTemplate.query("select * from schedule order by updated_at desc", scheduleRowMapper());
+        return jdbcTemplate.query(
+            """
+                    select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
+                            b.id, b.name, b.email
+                    from schedule AS a
+                    INNER JOIN author AS b ON a.author_id = b.id
+                    order by a.updated_at desc 
+                """
+                , scheduleRowMapper());
     }
 
     @Override
     public ScheduleResponseDto findScheduleById(Long id) {
-        List<ScheduleResponseDto> result = jdbcTemplate.query("select * from schedule where id = ?", scheduleRowMapper(), id);
+        List<ScheduleResponseDto> result = jdbcTemplate.query(
+                    """
+                    select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
+                            b.id, b.name, b.email
+                    from schedule AS a
+                    INNER JOIN author AS b ON a.author_id = b.id         
+                    where a.id = ?
+                    """
+                        , scheduleRowMapper(), id);
 
         return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = ? " + id));
     }
 
     @Override
-    public List<ScheduleResponseDto> findSchedulesByParams(String name, LocalDate updatedAt) {
+    public List<ScheduleResponseDto> findSchedulesByParams(String name, LocalDate updatedAt, Long authorId) {
 
-        return jdbcTemplate.query("select * from schedule where (? is null or name = ?) and (? is null or date(updated_at) = ?) order by updated_at desc", scheduleRowMapper(), name, name, updatedAt, updatedAt);
+        return jdbcTemplate.query(
+                   """
+                   select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
+                            b.id, b.name, b.email
+                    from schedule AS a
+                    INNER JOIN author AS b ON a.author_id = b.id         
+                    where (? is null or a.name = ?) 
+                           and (? is null or date(a.updated_at) = ?)
+                           and (? is null or a.author_id = ?)
+                           order by a.updated_at desc 
+                    """
+                        , scheduleRowMapper(), name, name, updatedAt, updatedAt, authorId, authorId);
     }
 
     @Override
@@ -86,7 +114,11 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
                         rs.getString("password"),
                         rs.getString("contents"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getTimestamp("updated_at").toLocalDateTime()
+                        rs.getTimestamp("updated_at").toLocalDateTime(),
+                        rs.getLong("author_id"),
+                        rs.getString("name"),
+                        rs.getString("email")
+
                 );
             }
         };

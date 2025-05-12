@@ -14,7 +14,7 @@ public interface ScheduleRepository {
 
     ScheduleResponseDto findScheduleById(Long id);
 
-    List<ScheduleResponseDto> findSchedulesByParams (String name, LocalDate updatedAt);
+    List<ScheduleResponseDto> findSchedulesByParams (String name, LocalDate updatedAt, Long authorId);
 
     int updateSchedule(Long id, ScheduleRequestDto scheduleRequestDto);
 

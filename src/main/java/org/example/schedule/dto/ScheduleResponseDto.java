@@ -16,4 +16,8 @@ public class ScheduleResponseDto {
     private String contents;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Long authorId;
+    private String authorName;
+    private String authorEmail;
 }
