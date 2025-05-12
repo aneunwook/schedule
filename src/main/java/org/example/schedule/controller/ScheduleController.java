@@ -31,8 +31,10 @@ public class ScheduleController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ScheduleResponseDto>> searchSchedules(@RequestParam (required = false) String name, @RequestParam (required = false) LocalDate updatedAt){
-        return new ResponseEntity<>(scheduleService.searchSchedules(name, updatedAt), HttpStatus.OK);
+    public ResponseEntity<List<ScheduleResponseDto>> searchSchedules(@RequestParam (required = false) String name,
+                                                                     @RequestParam (required = false) LocalDate updatedAt,
+                                                                     @RequestParam (required = false) Long authorId){
+        return new ResponseEntity<>(scheduleService.searchSchedules(name, updatedAt, authorId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

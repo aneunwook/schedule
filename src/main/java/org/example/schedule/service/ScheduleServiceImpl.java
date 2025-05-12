@@ -2,7 +2,9 @@ package org.example.schedule.service;
 
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
+import org.example.schedule.entity.Author;
 import org.example.schedule.entity.Schedule;
+import org.example.schedule.repository.AuthorRepository;
 import org.example.schedule.repository.ScheduleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,14 +18,16 @@ import java.util.List;
 public class ScheduleServiceImpl implements ScheduleService{
 
     private final ScheduleRepository scheduleRepository;
+    private final AuthorRepository authorRepository;
 
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository) {
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository, AuthorRepository authorRepository) {
         this.scheduleRepository = scheduleRepository;
+        this.authorRepository = authorRepository;
     }
 
     @Override
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
-        Schedule schedule = new Schedule(scheduleRequestDto.getName(), scheduleRequestDto.getPassword(), scheduleRequestDto.getContents());
+        Schedule schedule = new Schedule(scheduleRequestDto.getName(), scheduleRequestDto.getAuthorId(), scheduleRequestDto.getPassword(), scheduleRequestDto.getContents());
 
         if (scheduleRequestDto.getName() == null || scheduleRequestDto.getContents() == null || scheduleRequestDto.getPassword() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The name and contents and password are required values.");
@@ -31,7 +35,9 @@ public class ScheduleServiceImpl implements ScheduleService{
 
         Schedule save = scheduleRepository.save(schedule);
 
-        return new ScheduleResponseDto(save.getId(), save.getName(), save.getContents(), save.getPassword(), save.getCreatedAt(), save.getUpdatedAt());
+        Author author = authorRepository.findById(scheduleRequestDto.getAuthorId());
+
+        return new ScheduleResponseDto(save.getId(), save.getName(), save.getContents(), save.getPassword(), save.getCreatedAt(), save.getUpdatedAt(), author.getId(), author.getName(), author.getEmail());
     }
 
     @Override
@@ -45,8 +51,8 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
-    public List<ScheduleResponseDto> searchSchedules(String name, LocalDate updatedAt) {
-        return scheduleRepository.findSchedulesByParams(name, updatedAt);
+    public List<ScheduleResponseDto> searchSchedules(String name, LocalDate updatedAt, Long authorId) {
+        return scheduleRepository.findSchedulesByParams(name, updatedAt, authorId);
     }
 
     @Transactional
