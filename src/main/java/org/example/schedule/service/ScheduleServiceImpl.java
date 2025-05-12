@@ -1,5 +1,6 @@
 package org.example.schedule.service;
 
+import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
 import org.example.schedule.entity.Author;
@@ -41,8 +42,10 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
-    public List<ScheduleResponseDto> findAllSchedules() {
-        return scheduleRepository.findAllSchedules();
+    public List<ScheduleResponseDto> findAllSchedules(int page, int size) {
+        Paging paging = new Paging(page, size);
+
+        return scheduleRepository.findAllSchedules(paging);
     }
 
     @Override

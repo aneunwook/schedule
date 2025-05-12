@@ -1,5 +1,6 @@
 package org.example.schedule.repository;
 
+import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
 import org.example.schedule.entity.Schedule;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface ScheduleRepository {
     Schedule save(Schedule schedule);
 
-    List<ScheduleResponseDto> findAllSchedules();
+    List<ScheduleResponseDto> findAllSchedules(Paging paging);
 
     ScheduleResponseDto findScheduleById(Long id);
 

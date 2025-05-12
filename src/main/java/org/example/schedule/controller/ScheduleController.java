@@ -26,8 +26,10 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleResponseDto>> findAllSchedules(){
-        return new ResponseEntity<>(scheduleService.findAllSchedules(), HttpStatus.OK);
+    public ResponseEntity<List<ScheduleResponseDto>> findAllSchedules(
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size){
+        return new ResponseEntity<>(scheduleService.findAllSchedules(page, size), HttpStatus.OK);
     }
 
     @GetMapping("/search")

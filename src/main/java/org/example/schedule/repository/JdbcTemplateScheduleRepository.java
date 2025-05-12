@@ -1,5 +1,6 @@
 package org.example.schedule.repository;
 
+import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
 import org.example.schedule.entity.Schedule;
@@ -50,16 +51,18 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
     }
 
     @Override
-    public List<ScheduleResponseDto> findAllSchedules() {
+    public List<ScheduleResponseDto> findAllSchedules(Paging paging) {
+        int size = paging.getSize();
+
         return jdbcTemplate.query(
             """
                     select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
                             b.id, b.name, b.email
                     from schedule AS a
                     INNER JOIN author AS b ON a.author_id = b.id
-                    order by a.updated_at desc 
+                    order by a.updated_at desc LIMIT ? OFFSET ?
                 """
-                , scheduleRowMapper());
+                , scheduleRowMapper(), size, paging.offSet());
     }
 
     @Override

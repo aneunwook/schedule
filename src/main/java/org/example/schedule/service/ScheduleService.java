@@ -9,7 +9,7 @@ import java.util.List;
 public interface ScheduleService {
     ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto);
 
-    List<ScheduleResponseDto> findAllSchedules();
+    List<ScheduleResponseDto> findAllSchedules(int page, int size);
 
     ScheduleResponseDto findScheduleById(Long id);
 
