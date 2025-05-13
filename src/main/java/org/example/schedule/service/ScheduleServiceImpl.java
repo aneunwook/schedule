@@ -88,17 +88,18 @@ public class ScheduleServiceImpl implements ScheduleService{
         ScheduleResponseDto scheduleById = scheduleRepository.findScheduleById(id);
 
         if(scheduleById == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+            throw new ScheduleNotFoundException("id = " + id);
         }
 
         if(!password.equals(scheduleById.getPassword())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 다릅니다");
+            throw new PasswordDoesNotMatch("비밀번호가 틀립니다");
         }
 
         int deleted = scheduleRepository.deleteSchedule(id, password);
 
         if (deleted == 0){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+            throw new ScheduleNotFoundException("id = " + id);
+
         }
     }
 }

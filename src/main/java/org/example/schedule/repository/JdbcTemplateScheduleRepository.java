@@ -69,14 +69,14 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
     @Override
     public ScheduleResponseDto findScheduleById(Long id) {
         List<ScheduleResponseDto> result = jdbcTemplate.query(
-                    """
-                    select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
-                            b.id, b.name, b.email
-                    from schedule AS a
-                    INNER JOIN author AS b ON a.author_id = b.id         
-                    where a.id = ?
-                    """
-                        , scheduleRowMapper(), id);
+                """
+                        select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
+                                b.id, b.name, b.email
+                        from schedule AS a
+                        INNER JOIN author AS b ON a.author_id = b.id         
+                        where a.id = ?
+                        """
+                , scheduleRowMapper(), id);
 
         return result.stream().findAny().orElseThrow(() -> new ScheduleNotFoundException("id = " + id));
     }
