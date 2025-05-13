@@ -1,5 +1,7 @@
 package org.example.schedule.service;
 
+import org.example.schedule.common.PasswordDoesNotMatch;
+import org.example.schedule.common.ScheduleNotFoundException;
 import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
@@ -61,20 +63,21 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Transactional
     @Override
     public ScheduleResponseDto updateScheduleById(Long id, ScheduleRequestDto scheduleRequestDto) {
+
         ScheduleResponseDto scheduleById = scheduleRepository.findScheduleById(id);
 
-        if(scheduleById == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+        if(scheduleById.getId() == null){
+            throw new ScheduleNotFoundException("id = " + id);
         }
 
         if(!scheduleById.getPassword().equals(scheduleRequestDto.getPassword())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 다릅니다");
+            throw new PasswordDoesNotMatch("비밀번호가 틀립니다");
         }
 
         int updated = scheduleRepository.updateSchedule(id, scheduleRequestDto);
 
         if (updated == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 ID의 일정이 존재하지 않습니다.");
+            throw new ScheduleNotFoundException("id = " + scheduleById);
         }
 
         return scheduleRepository.findScheduleById(id);

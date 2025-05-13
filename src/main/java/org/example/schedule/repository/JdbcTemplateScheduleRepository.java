@@ -1,5 +1,6 @@
 package org.example.schedule.repository;
 
+import org.example.schedule.common.ScheduleNotFoundException;
 import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
@@ -77,7 +78,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
                     """
                         , scheduleRowMapper(), id);
 
-        return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exists id = ? " + id));
+        return result.stream().findAny().orElseThrow(() -> new ScheduleNotFoundException("id = " + id));
     }
 
     @Override
