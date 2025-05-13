@@ -1,17 +1,16 @@
 package org.example.schedule.repository;
 
 import org.example.schedule.common.ScheduleNotFoundException;
+import org.example.schedule.dto.AuthorResponseDto;
 import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
 import org.example.schedule.entity.Schedule;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -56,14 +55,14 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
         int size = paging.getSize();
 
         return jdbcTemplate.query(
-            """
-                    select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
-                            b.id, b.name, b.email
-                    from schedule AS a
-                    INNER JOIN author AS b ON a.author_id = b.id
-                    order by a.updated_at desc LIMIT ? OFFSET ?
                 """
-                , scheduleRowMapper(), size, paging.offSet());
+                select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
+                       b.id, b.name, b.email, b.created_at, b.updated_at
+                from schedule AS a
+                INNER JOIN author AS b ON a.author_id = b.id
+                order by a.updated_at desc LIMIT ? OFFSET ?
+                """,
+                scheduleRowMapper(), size, paging.offSet());
     }
 
     @Override
@@ -71,7 +70,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
         List<ScheduleResponseDto> result = jdbcTemplate.query(
                 """
                         select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
-                                b.id, b.name, b.email
+                                b.id, b.name, b.email, b.created_at, b.updated_at
                         from schedule AS a
                         INNER JOIN author AS b ON a.author_id = b.id         
                         where a.id = ?
@@ -87,7 +86,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
         return jdbcTemplate.query(
                    """
                    select a.id, a.name, a.password, a.contents, a.created_at, a.updated_at, a.author_id,
-                            b.id, b.name, b.email
+                            b.id, b.name, b.email, b.created_at, b.updated_at
                     from schedule AS a
                     INNER JOIN author AS b ON a.author_id = b.id         
                     where (? is null or a.name = ?) 
@@ -108,23 +107,27 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository{
         return jdbcTemplate.update("delete from schedule where id = ? and password = ?", id, password);
     }
 
-    private RowMapper<ScheduleResponseDto> scheduleRowMapper(){
-        return new RowMapper<ScheduleResponseDto>() {
-            @Override
-            public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new ScheduleResponseDto(
-                        rs.getLong("id"),
-                        rs.getString("name"),
-                        rs.getString("password"),
-                        rs.getString("contents"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getTimestamp("updated_at").toLocalDateTime(),
-                        rs.getLong("author_id"),
-                        rs.getString("name"),
-                        rs.getString("email")
+    private RowMapper<ScheduleResponseDto> scheduleRowMapper() {
+        return (rs, rowNum) -> {
+            // AuthorDto 생성
+            AuthorResponseDto author = new AuthorResponseDto(
+                    rs.getLong("b.id"),
+                    rs.getString("b.email"),
+                    rs.getString("b.name"),
+                    rs.getTimestamp("b.created_at").toLocalDateTime(),
+                    rs.getTimestamp("b.updated_at").toLocalDateTime()
+            );
 
-                );
-            }
+            // ScheduleResponseDto 생성 (AuthorResponseDto를 포함)
+            return new ScheduleResponseDto(
+                    rs.getLong("a.id"),
+                    rs.getString("a.name"),
+                    rs.getString("a.password"),
+                    rs.getString("a.contents"),
+                    rs.getTimestamp("a.created_at").toLocalDateTime(),
+                    rs.getTimestamp("a.updated_at").toLocalDateTime(),
+                    author
+            );
         };
     }
 

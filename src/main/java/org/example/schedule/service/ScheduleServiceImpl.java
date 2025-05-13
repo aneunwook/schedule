@@ -2,6 +2,7 @@ package org.example.schedule.service;
 
 import org.example.schedule.common.PasswordDoesNotMatch;
 import org.example.schedule.common.ScheduleNotFoundException;
+import org.example.schedule.dto.AuthorResponseDto;
 import org.example.schedule.dto.Paging;
 import org.example.schedule.dto.ScheduleRequestDto;
 import org.example.schedule.dto.ScheduleResponseDto;
@@ -40,7 +41,7 @@ public class ScheduleServiceImpl implements ScheduleService{
 
         Author author = authorRepository.findById(scheduleRequestDto.getAuthorId());
 
-        return new ScheduleResponseDto(save.getId(), save.getName(), save.getContents(), save.getPassword(), save.getCreatedAt(), save.getUpdatedAt(), author.getId(), author.getName(), author.getEmail());
+        return new ScheduleResponseDto(save, author);
     }
 
     @Override

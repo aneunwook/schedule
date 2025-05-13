@@ -17,14 +17,11 @@ public class Author {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
     public Author(String email, String name){
         this.email = email;
         this.name = name;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
-
-
 
 }

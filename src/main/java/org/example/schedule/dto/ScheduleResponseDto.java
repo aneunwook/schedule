@@ -2,6 +2,8 @@ package org.example.schedule.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.example.schedule.entity.Author;
+import org.example.schedule.entity.Schedule;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +19,14 @@ public class ScheduleResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Long authorId;
-    private String authorName;
-    private String authorEmail;
+    private AuthorResponseDto author;
+
+    public ScheduleResponseDto(Schedule schedule, Author author){
+        this.id = schedule.getId();
+        this.name = schedule.getName();
+        this.contents = schedule.getContents();
+        this.createdAt = schedule.getCreatedAt();
+        this.updatedAt = schedule.getUpdatedAt();
+        this.author = new AuthorResponseDto(author);
+    }
 }

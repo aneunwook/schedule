@@ -20,6 +20,6 @@ public class AuthorServiceImpl implements AuthorService{
 
         Author save = authorRepository.save(author);
 
-        return new AuthorResponseDto(save.getId(), save.getEmail(), save.getName(), save.getCreatedAt(), save.getUpdatedAt());
+        return new AuthorResponseDto(save);
     }
 }
