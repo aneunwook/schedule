@@ -25,7 +25,6 @@ public class JdbcTemplateAuthorRepository implements AuthorRepository{
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-
     @Override
     public Author save(Author author) {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate);

@@ -29,6 +29,9 @@ public class ScheduleServiceImpl implements ScheduleService{
         this.authorRepository = authorRepository;
     }
 
+    /**
+     * 일정 생성하는 메서드
+     */
     @Override
     public ScheduleResponseDto createSchedule(ScheduleRequestDto scheduleRequestDto) {
         Schedule schedule = new Schedule(scheduleRequestDto.getName(), scheduleRequestDto.getAuthorId(), scheduleRequestDto.getPassword(), scheduleRequestDto.getContents());
@@ -38,12 +41,14 @@ public class ScheduleServiceImpl implements ScheduleService{
         }
 
         Schedule save = scheduleRepository.save(schedule);
-
         Author author = authorRepository.findById(scheduleRequestDto.getAuthorId());
 
         return new ScheduleResponseDto(save, author);
     }
 
+    /**
+     * 페이징을 이용하여 전체 일정 조회
+     */
     @Override
     public List<ScheduleResponseDto> findAllSchedules(int page, int size) {
         Paging paging = new Paging(page, size);
@@ -51,16 +56,25 @@ public class ScheduleServiceImpl implements ScheduleService{
         return scheduleRepository.findAllSchedules(paging);
     }
 
+    /**
+     * ID로 일정 상세 조회
+     */
     @Override
     public ScheduleResponseDto findScheduleById(Long id) {
         return scheduleRepository.findScheduleById(id);
     }
 
+    /**
+     * 검색 조건(name, updatedAt, authorId)에 따라 일정 목록 조회
+     */
     @Override
     public List<ScheduleResponseDto> searchSchedules(String name, LocalDate updatedAt, Long authorId) {
         return scheduleRepository.findSchedulesByParams(name, updatedAt, authorId);
     }
 
+    /**
+     * 일정 수정하는 메서드
+     */
     @Transactional
     @Override
     public ScheduleResponseDto updateScheduleById(Long id, ScheduleRequestDto scheduleRequestDto) {
@@ -84,6 +98,9 @@ public class ScheduleServiceImpl implements ScheduleService{
         return scheduleRepository.findScheduleById(id);
     }
 
+    /**
+     * 알정 삭제
+     */
     @Override
     public void deleteSchedule(Long id, String password) {
         ScheduleResponseDto scheduleById = scheduleRepository.findScheduleById(id);

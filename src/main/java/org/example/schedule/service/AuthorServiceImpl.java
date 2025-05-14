@@ -14,6 +14,9 @@ public class AuthorServiceImpl implements AuthorService{
         this.authorRepository = authorRepository;
     }
 
+    /**
+     * 작성자 생성 하는 메서드
+     */
     @Override
     public AuthorResponseDto createAuthor(AuthorRequestDto authorRequestDto) {
         Author author = new Author(authorRequestDto.getEmail(), authorRequestDto.getName());
